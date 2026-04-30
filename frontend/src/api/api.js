@@ -2,20 +2,18 @@ export const users = [
   {
     id: 1,
     username: "user",
+    first_name: "Имя",
+    last_name: "Фамилия",
     password: "123",
-    roles: ["user"],
+    role: "user",
   },
   {
     id: 2,
     username: "doctor",
+    first_name: "Имя",
+    last_name: "Фамилия",
     password: "123",
-    roles: ["doctor"],
-  },
-  {
-    id: 3,
-    username: "admin",
-    password: "123",
-    roles: ["admin"],
+    role: "doctor",
   },
 ];
 
@@ -241,6 +239,8 @@ export const login = (username, password) => {
   return {
     id: user.id,
     username: user.username,
-    roles: user.roles,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    role: user.role,
   };
 };

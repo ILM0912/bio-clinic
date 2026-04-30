@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import classes from "./Navigation.module.css";
 import { Link } from 'react-router-dom';
-import { BsList, BsX } from "react-icons/bs";
+import { BsList, BsX, BsPerson, BsBoxArrowRight, BsActivity, BsHospital, BsPeople, BsBoxArrowInRight } from "react-icons/bs";
 import { useSelector, useDispatch } from "react-redux";
+import { logout } from '../../store/store';
 
 function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,7 +12,7 @@ function Navigation() {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    // dispatch(logoutAction());
+    dispatch(logout());
     setIsOpen(false);
   };
 
@@ -19,13 +20,19 @@ function Navigation() {
     <div className={classes.navWrapper}>
       <ul className={`${classes.navMenu} list-unstyled`}>
         <li>
-          <Link className={classes.navLink} to="/" onClick={() => setIsOpen(false)}>Главная</Link>
+          <Link className={classes.navLink} to="/" onClick={() => setIsOpen(false)}>
+            <BsHospital/> Главная
+          </Link>
         </li>
         <li>
-          <Link className={classes.navLink} to="/services" onClick={() => setIsOpen(false)}>Услуги</Link>
+          <Link className={classes.navLink} to="/services" onClick={() => setIsOpen(false)}>
+            <BsActivity/> Услуги
+          </Link>
         </li>
         <li>
-          <Link className={classes.navLink} to="/staff" onClick={() => setIsOpen(false)}>Персонал</Link>
+          <Link className={classes.navLink} to="/staff" onClick={() => setIsOpen(false)}>
+            <BsPeople/> Персонал
+          </Link>
         </li>
       </ul>
 
@@ -40,32 +47,42 @@ function Navigation() {
       {isOpen && (
         <ul className={`${classes.mobileMenu} list-unstyled`}>
           <li>
-            <Link className={classes.navLink} to="/" onClick={() => setIsOpen(false)}>Главная</Link>
+            <Link to="/" onClick={() => setIsOpen(false)}>
+              <BsHospital/> Главная
+            </Link>
           </li>
           <li>
-            <Link className={classes.navLink} to="/services" onClick={() => setIsOpen(false)}>Услуги</Link>
+            <Link to="/services" onClick={() => setIsOpen(false)}>
+              <BsActivity/> Услуги
+            </Link>
           </li>
           <li>
-            <Link className={classes.navLink} to="/staff" onClick={() => setIsOpen(false)}>Персонал</Link>
+            <Link to="/staff" onClick={() => setIsOpen(false)}>
+              <BsPeople/> Персонал
+            </Link>
           </li>
+          <li className={classes.mobileDivider}></li>
           {!user && (
             <li>
-              <Link className={classes.navLink} to="/login" onClick={() => setIsOpen(false)}>Войти</Link>
+              <Link to="/login" onClick={() => setIsOpen(false)}>
+                <BsBoxArrowInRight/> Войти
+              </Link>
             </li>
           )}
           {user && (
             <>
-              <li className={classes.mobileDivider}></li>
               <li>
-                <Link className={classes.navLink} to="/profile" onClick={() => setIsOpen(false)}>Профиль</Link>
+                <Link to="/profile" onClick={() => setIsOpen(false)}>
+                  <BsPerson /> {user.first_name} {user.last_name?.[0]}.
+                </Link>
               </li>
               <li>
-                <Link className={classes.navLink} to="/" onClick={() => {
+                <Link to="/" onClick={() => {
                     handleLogout();
                     setIsOpen(false);
                   }}
                 >
-                  Выйти
+                  <BsBoxArrowRight /> Выйти
                 </Link>
               </li>
             </>

@@ -1,25 +1,24 @@
 import { createStore } from "redux";
 
-const TOGGLE_AGREEMENT = "agreement/toggle";
-const SET_USER = "auth/setUser";
+const LOGIN = "auth/login";
+const LOGOUT = "auth/logout";
 
 const initialState = {
-  accepted: false,
   user: null,
 };
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case TOGGLE_AGREEMENT:
-      return {
-        ...state,
-        accepted: action.payload,
-      };
-
-    case SET_USER:
+    case LOGIN:
       return {
         ...state,
         user: action.payload,
+      };
+
+    case LOGOUT:
+      return {
+        ...state,
+        user: null,
       };
 
     default:
@@ -27,14 +26,15 @@ const reducer = (state = initialState, action) => {
   }
 };
 
-export const toggleAgreement = (value) => ({
-  type: TOGGLE_AGREEMENT,
-  payload: value,
-});
+export const login = (user) => {
+  return {
+    type: LOGIN,
+    payload: user,
+  };
+};
 
-export const setUser = (user) => ({
-  type: SET_USER,
-  payload: user,
+export const logout = () => ({
+  type: LOGOUT,
 });
 
 export const store = createStore(reducer);

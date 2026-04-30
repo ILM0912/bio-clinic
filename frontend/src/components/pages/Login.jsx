@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { setUser } from "../../store/store";
+import { login as loginAction } from "../../store/store";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../api/api";
+import { login as loginApi } from "../../api/api";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -15,14 +15,14 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const user = login(username, password);
+    const user = loginApi(username, password);
 
     if (!user) {
       setError("Неверный логин или пароль");
       return;
     }
 
-    dispatch(setUser(user));
+    dispatch(loginAction(user));
     navigate("/");
   };
 
