@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Home from './components/pages/Home';
 import Services from './components/pages/Services';
-import Booking from './components/pages/Booking';
+import Appointment from './components/pages/Appointment';
 import Login from "./components/pages/Login";
 import Profile from './components/pages/Profile';
 // import Staff from './components/pages/Staff';
@@ -20,7 +20,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/services" element={<Services />} />
-          <Route path="/booking/:serviceId" element={<Booking />} />
+          <Route path="/appointment/:serviceId" element={<Appointment />} />
           {/* <Route path="/staff" element={<Staff />} /> */}
         </Routes>
       </main>

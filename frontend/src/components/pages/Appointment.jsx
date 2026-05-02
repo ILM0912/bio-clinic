@@ -2,7 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { getService } from "../../api/api";
 
-function Booking() {
+function Appointment() {
   const { serviceId } = useParams();
   const service = getService(serviceId);
 
@@ -19,4 +19,4 @@ function Booking() {
   );
 }
 
-export default Booking;
+export default Appointment;

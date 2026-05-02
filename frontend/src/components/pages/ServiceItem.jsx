@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const ServiceItem = (service) => {
-  const path = "/booking/" + service.id;
+  const path = "/appoinment/" + service.id;
   return (
     <div className="card h-100 shadow-sm mb-3">
       <div className="card-body d-flex flex-column">
