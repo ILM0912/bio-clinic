@@ -1,0 +1,130 @@
+[
+  {
+    "model": "clinic.servicegroup",
+    "pk": 1,
+    "fields": {
+      "name": "Консультации"
+    }
+  },
+  {
+    "model": "clinic.servicegroup",
+    "pk": 2,
+    "fields": {
+      "name": "Анализы"
+    }
+  },
+  {
+    "model": "clinic.servicegroup",
+    "pk": 3,
+    "fields": {
+      "name": "Диагностика"
+    }
+  },
+  {
+    "model": "clinic.branch",
+    "pk": 1,
+    "fields": {
+      "name": "Центральный филиал",
+      "address": "ул. Ленина, 10",
+      "phone": "+7 (999) 111-22-33"
+    }
+  },
+  {
+    "model": "clinic.branch",
+    "pk": 2,
+    "fields": {
+      "name": "Филиал на Мира",
+      "address": "пр. Мира, 25",
+      "phone": "+7 (999) 222-33-44"
+    }
+  },
+  {
+    "model": "clinic.service",
+    "pk": 1,
+    "fields": {
+      "group": 1,
+      "title": "Прием терапевта",
+      "description": "Первичный осмотр врача-терапевта, сбор анамнеза, измерение давления и назначение лечения.",
+      "price": "1500.00",
+      "is_active": true
+    }
+  },
+  {
+    "model": "clinic.service",
+    "pk": 2,
+    "fields": {
+      "group": 1,
+      "title": "Консультация кардиолога",
+      "description": "Прием кардиолога, оценка состояния сердечно-сосудистой системы и подбор рекомендаций.",
+      "price": "2200.00",
+      "is_active": true
+    }
+  },
+  {
+    "model": "clinic.service",
+    "pk": 3,
+    "fields": {
+      "group": 2,
+      "title": "Общий анализ крови",
+      "description": "Клинический анализ крови с основными показателями.",
+      "price": "700.00",
+      "is_active": true
+    }
+  },
+  {
+    "model": "clinic.service",
+    "pk": 4,
+    "fields": {
+      "group": 3,
+      "title": "УЗИ брюшной полости",
+      "description": "Ультразвуковое исследование органов брюшной полости.",
+      "price": "1800.00",
+      "is_active": true
+    }
+  },
+  {
+    "model": "clinic.branchservice",
+    "pk": 1,
+    "fields": {
+      "branch": 1,
+      "service": 1,
+      "is_active": true
+    }
+  },
+  {
+    "model": "clinic.branchservice",
+    "pk": 2,
+    "fields": {
+      "branch": 1,
+      "service": 2,
+      "is_active": true
+    }
+  },
+  {
+    "model": "clinic.branchservice",
+    "pk": 3,
+    "fields": {
+      "branch": 1,
+      "service": 3,
+      "is_active": true
+    }
+  },
+  {
+    "model": "clinic.branchservice",
+    "pk": 4,
+    "fields": {
+      "branch": 2,
+      "service": 1,
+      "is_active": true
+    }
+  },
+  {
+    "model": "clinic.branchservice",
+    "pk": 5,
+    "fields": {
+      "branch": 2,
+      "service": 4,
+      "is_active": true
+    }
+  }
+]

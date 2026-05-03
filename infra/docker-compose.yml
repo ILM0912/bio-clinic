@@ -1,0 +1,52 @@
+volumes:
+  pg_data:
+  static:
+  media:
+
+services:
+  db:
+    image: postgres:13
+    container_name: bio_clinic_db
+    env_file:
+      - .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ..
+      dockerfile: infra/backend/Dockerfile
+    container_name: bio_clinic_backend
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - static:/backend_static
+      - media:/app/media
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: infra/frontend/Dockerfile
+    container_name: bio_clinic_frontend
+    env_file:
+      - .env
+    volumes:
+      - static:/static
+
+  gateway:
+    build:
+      context: ..
+      dockerfile: infra/nginx/Dockerfile
+    container_name: bio_clinic_gateway
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+    volumes:
+      - static:/static
+      - media:/media
