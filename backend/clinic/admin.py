@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
@@ -13,16 +14,46 @@ from .models import (
 )
 
 
-class BranchServiceInline(admin.TabularInline):
+class BranchInlineForService(admin.TabularInline):
     model = BranchService
     extra = 1
     autocomplete_fields = ('branch',)
 
 
-class DoctorBranchServiceInline(admin.TabularInline):
+class ServiceInlineForBranch(admin.TabularInline):
+    model = BranchService
+    extra = 1
+    autocomplete_fields = ('service',)
+
+
+class DoctorInlineForBranchService(admin.TabularInline):
+    model = DoctorBranchService
+    extra = 1
+    autocomplete_fields = ('doctor',)
+
+
+class BranchServiceInlineForDoctor(admin.TabularInline):
     model = DoctorBranchService
     extra = 1
     autocomplete_fields = ('branch_service',)
+
+
+class ServiceInlineForm(forms.ModelForm):
+    class Meta:
+        model = Service
+        fields = '__all__'
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'rows': 3,
+                'cols': 40,
+            }),
+        }
+
+
+class ServiceInlineForServiceGroup(admin.TabularInline):
+    model = Service
+    form = ServiceInlineForm
+    extra = 1
 
 
 @admin.register(User)
@@ -92,7 +123,7 @@ class BranchAdmin(admin.ModelAdmin):
         'address',
         'phone',
     )
-    inlines = (BranchServiceInline,)
+    inlines = (ServiceInlineForBranch,)
 
 
 @admin.register(ServiceGroup)
@@ -102,6 +133,7 @@ class ServiceGroupAdmin(admin.ModelAdmin):
         'name',
     )
     search_fields = ('name',)
+    inlines = (ServiceInlineForServiceGroup,)
 
 
 @admin.register(Service)
@@ -122,7 +154,7 @@ class ServiceAdmin(admin.ModelAdmin):
         'title',
         'description',
     )
-    inlines = (BranchServiceInline,)
+    inlines = (BranchInlineForService,)
 
 
 @admin.register(BranchService)
@@ -143,9 +175,7 @@ class BranchServiceAdmin(admin.ModelAdmin):
         'branch__name',
         'service__title',
     )
-
-    def has_module_permission(self, request):
-        return False
+    inlines = (DoctorInlineForBranchService,)
 
 
 @admin.register(DoctorProfile)
@@ -169,7 +199,7 @@ class DoctorProfileAdmin(admin.ModelAdmin):
         'specialization',
     )
     readonly_fields = ('experience_years',)
-    inlines = (DoctorBranchServiceInline,)
+    inlines = (BranchServiceInlineForDoctor,)
 
 
 @admin.register(DoctorBranchService)
