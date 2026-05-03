@@ -1,58 +1,202 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { login as loginAction } from "../../store/store";
 import { useNavigate } from "react-router-dom";
-import { login as loginApi } from "../../api/api";
+import { login as loginAction } from "../../store/store";
+import { login as loginApi, register as registerApi } from "../../api/api";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [activeTab, setActiveTab] = useState("login");
+
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerFirstName, setRegisterFirstName] = useState("");
+  const [registerLastName, setRegisterLastName] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState("");
+
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const resetError = () => {
+    setError("");
+  };
 
-    const user = loginApi(username, password);
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    resetError();
+  };
 
-    if (!user) {
-      setError("Неверный логин или пароль");
+  const handleLoginSubmit = (event) => {
+    event.preventDefault();
+
+    setError("");
+    setIsLoading(true);
+
+    loginApi({
+      email: loginEmail,
+      password: loginPassword,
+    })
+      .then((user) => {
+        dispatch(loginAction(user));
+        navigate("/");
+      })
+      .catch((error) => {
+        setError("Неверный email или пароль");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const handleRegisterSubmit = (event) => {
+    event.preventDefault();
+
+    if (registerPassword !== registerPasswordConfirm) {
+      setError("Пароли не совпадают");
+      setIsLoading(false);
       return;
     }
 
-    dispatch(loginAction(user));
-    navigate("/");
+    setError("");
+    setIsLoading(true);
+
+    registerApi({
+      email: registerEmail,
+      first_name: registerFirstName,
+      last_name: registerLastName,
+      password: registerPassword,
+    })
+      .then(() =>
+        loginApi({
+          email: registerEmail,
+          password: registerPassword,
+        })
+      )
+      .then((user) => {
+        dispatch(loginAction(user));
+        navigate("/");
+      })
+      .catch((error) => {
+        setError(error.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   return (
-    <div className="container" style={{ paddingTop: "100px", maxWidth: "400px" }}>
-      <h2 className="mb-4 text-center">Вход</h2>
+    <div className="container" style={{paddingTop: "100px", maxWidth: "500px"}}>
+      <div className="card shadow-sm border-0">
+        <div className="card-body p-4">
+          <div className="d-flex mb-4 bg-light rounded-3 p-1">
+            <button
+              type="button"
+              className={`btn w-50 ${
+                activeTab === "login" ? "btn-primary" : "btn-light"
+              }`}
+              onClick={() => handleTabChange("login")}
+            >
+              Вход
+            </button>
+            <button
+              type="button"
+              className={`btn w-50 ${
+                activeTab === "register" ? "btn-primary" : "btn-light"
+              }`}
+              onClick={() => handleTabChange("register")}
+            >
+              Регистрация
+            </button>
+          </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          className="form-control mb-3"
-          placeholder="Логин"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
+          {activeTab === "login" && (
+            <form onSubmit={handleLoginSubmit}>
+              <input
+                type="email"
+                className="form-control mb-3"
+                placeholder="Email"
+                value={loginEmail}
+                onChange={(event) => setLoginEmail(event.target.value)}
+                required
+              />
+              <input
+                type="password"
+                className="form-control mb-3"
+                placeholder="Пароль"
+                value={loginPassword}
+                onChange={(event) => setLoginPassword(event.target.value)}
+                required
+              />
+              {error && <div className="text-danger mb-3">{error}</div>}
+              <button
+                type="submit"
+                className="btn btn-primary w-100"
+                disabled={isLoading}
+              >
+                {isLoading ? "Вход..." : "Войти"}
+              </button>
+            </form>
+          )}
 
-        <input
-          type="password"
-          className="form-control mb-3"
-          placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        {error && <div className="text-danger mb-3">{error}</div>}
-
-        <button className="btn btn-primary w-100">
-          Войти
-        </button>
-      </form>
+          {activeTab === "register" && (
+            <form onSubmit={handleRegisterSubmit}>
+              <input
+                type="text"
+                className="form-control mb-3"
+                placeholder="Имя"
+                value={registerFirstName}
+                onChange={(event) => setRegisterFirstName(event.target.value)}
+                required
+              />
+              <input
+                type="text"
+                className="form-control mb-3"
+                placeholder="Фамилия"
+                value={registerLastName}
+                onChange={(event) => setRegisterLastName(event.target.value)}
+                required
+              />
+              <input
+                type="email"
+                className="form-control mb-3"
+                placeholder="Email"
+                value={registerEmail}
+                onChange={(event) => setRegisterEmail(event.target.value)}
+                required
+              />
+              <input
+                type="password"
+                className="form-control mb-3"
+                placeholder="Пароль"
+                value={registerPassword}
+                onChange={(event) => setRegisterPassword(event.target.value)}
+                required
+              />
+              <input
+                type="password"
+                className="form-control mb-3"
+                placeholder="Повторите пароль"
+                value={registerPasswordConfirm}
+                onChange={(event) => setRegisterPasswordConfirm(event.target.value)}
+                required
+              />
+              {error && <div className="text-danger mb-3">{error}</div>}
+              <button
+                type="submit"
+                className="btn btn-primary w-100"
+                disabled={isLoading}
+              >
+                {isLoading ? "Регистрация..." : "Зарегистрироваться"}
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

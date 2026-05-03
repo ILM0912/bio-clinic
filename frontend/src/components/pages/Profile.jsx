@@ -12,20 +12,18 @@ const Profile = () => {
     );
   }
 
-  const role = user.roles[0];
+  const role = user.role;
 
   let content = "";
 
-  if (role === "user") {
-    content = "Это страница пользователя";
+  if (role === "patient") {
+    content = "Это страница пациента";
   } else if (role === "doctor") {
     content = "Это страница врача";
-  } else if (role === "admin") {
-    content = "Это страница администратора";
   }
 
   return (
-    <div className="container text-center" style={{ paddingTop: "100px" }}>
+    <div className="container text-center" style={{ paddingTop: "40px" }}>
       <h2>{content}</h2>
     </div>
   );

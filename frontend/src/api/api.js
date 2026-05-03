@@ -1,11 +1,31 @@
 const API_URL = "/api";
 
+const getErrorMessage = (data) => {
+  if (typeof data === "string") {
+    return data;
+  }
+
+  if (Array.isArray(data)) {
+    return data.join(" ");
+  }
+
+  if (typeof data === "object" && data !== null) {
+    return Object.values(data)
+      .flat()
+      .join(" ");
+  }
+
+  return "Ошибка запроса";
+};
 
 const checkResponse = (response) => {
-  if (!response.ok) {
-    throw new Error(`Ошибка запроса: ${response.status}`);
+  if (response.ok) {
+    return response.json();
   }
-  return response.json();
+
+  return response.json().then((data) => {
+    throw new Error(getErrorMessage(data));
+  });
 };
 
 export const getGroups = () => {
@@ -35,39 +55,62 @@ export const getService = (id) => {
   return fetch(`${API_URL}/services/${id}/`).then(checkResponse);
 };
 
-export const users = [
-  {
-    id: 1,
-    username: "user",
-    first_name: "Имя",
-    last_name: "Фамилия",
-    password: "123",
-    role: "user",
-  },
-  {
-    id: 2,
-    username: "doctor",
-    first_name: "Имя",
-    last_name: "Фамилия",
-    password: "123",
-    role: "doctor",
-  },
-];
+export const register = ({ email, first_name, last_name, password }) => {
+  return fetch(`${API_URL}/auth/users/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      first_name,
+      last_name,
+      password,
+    }),
+  }).then(checkResponse);
+};
 
-export const login = (username, password) => {
-  const user = users.find(
-    (u) => u.username === username && u.password === password
-  );
+export const login = ({ email, password }) => {
+  return fetch(`${API_URL}/auth/token/login/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  })
+    .then(checkResponse)
+    .then((data) => {
+      localStorage.setItem("auth_token", data.auth_token);
+      return fetch(`${API_URL}/auth/users/me/`, {
+        headers: {
+          Authorization: `Token ${data.auth_token}`,
+        },
+      });
+    })
+    .then(checkResponse);
+};
 
-  if (!user) {
-    return null;
-  }
+export const logout = () => {
+  const token = localStorage.getItem("auth_token");
+  return fetch(`${API_URL}/auth/token/logout/`, {
+    method: "POST",
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  }).finally(() => {
+    localStorage.removeItem("auth_token");
+  });
+};
 
-  return {
-    id: user.id,
-    username: user.username,
-    first_name: user.first_name,
-    last_name: user.last_name,
-    role: user.role,
-  };
+export const getCurrentUser = () => {
+  const token = localStorage.getItem("auth_token");
+
+  return fetch(`${API_URL}/auth/users/me/`, {
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  }).then(checkResponse);
 };

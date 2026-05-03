@@ -2,18 +2,24 @@ import React, { useState } from "react";
 import Navigation from "./Navigation";
 import classes from "./Header.module.css";
 import butterfly from "../../assets/butterfly.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { BsPersonCircle, BsPerson, BsBoxArrowRight, BsBoxArrowInRight } from "react-icons/bs";
-import { logout } from '../../store/store';
+import { logout as logoutApi } from "../../api/api";
+import { logout as logoutAction } from "../../store/store";
 
 function Header() {
   const user = useSelector((state) => state.user);
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const handleLogout = () => {
-    dispatch(logout());
+    logoutApi().finally(() => {
+      dispatch(logoutAction());
+      navigate("/");
+    });
     setIsOpen(true);
   };
 

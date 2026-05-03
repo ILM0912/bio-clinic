@@ -1,19 +1,24 @@
 import React, { useState } from "react";
 import classes from "./Navigation.module.css";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BsList, BsX, BsPerson, BsBoxArrowRight, BsActivity, BsHospital, BsPeople, BsBoxArrowInRight } from "react-icons/bs";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from '../../store/store';
+import { logout as logoutApi } from "../../api/api";
+import { logout as logoutAction } from "../../store/store";
 
 function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    dispatch(logout());
-    setIsOpen(false);
+    logoutApi().finally(() => {
+      dispatch(logoutAction());
+      navigate("/");
+    });
+    setIsOpen(true);
   };
 
   return (
