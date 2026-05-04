@@ -1,8 +1,9 @@
 from rest_framework import viewsets
 
-from .models import Branch, Service, ServiceGroup
+from .models import Branch, DoctorProfile, Service, ServiceGroup
 from .serializers import (
     BranchSerializer,
+    DoctorProfileSerializer,
     ServiceGroupSerializer,
     ServiceSerializer,
 )
@@ -32,3 +33,14 @@ class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
         if group_id:
             queryset = queryset.filter(group_id=group_id)
         return queryset.distinct()
+
+
+class DoctorProfileViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = DoctorProfileSerializer
+    def get_queryset(self):
+        return (
+            DoctorProfile.objects
+            .filter(is_active=True)
+            .select_related('user')
+            .order_by('user__last_name', 'user__first_name')
+        )

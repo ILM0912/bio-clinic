@@ -2,50 +2,7 @@ from django.core.management.base import BaseCommand
 
 from clinic.models import DoctorBranchService, DoctorProfile, User
 from clinic.services import set_doctor_photo
-
-
-DOCTORS = [
-    {
-        "email": "jagloik@ya.ru",
-        "password": "Test1234",
-        "first_name": "Игорь",
-        "last_name": "Жагло",
-        "specialization": "Терапевт",
-        "work_started_at": "2018-09-01",
-        "photo": None,
-        "branch_services": [1, 4],
-    },
-    {
-        "email": "tima@ya.ru",
-        "password": "Test1234",
-        "first_name": "Тимофей",
-        "last_name": "Лясковский",
-        "specialization": "Кардиолог",
-        "work_started_at": "2015-04-15",
-        "photo": None,
-        "branch_services": [2],
-    },
-    {
-        "email": "babycute@ya.ru",
-        "password": "Test1234",
-        "first_name": "Анастасия",
-        "last_name": "Морозова",
-        "specialization": "Врач ультразвуковой диагностики",
-        "work_started_at": "2020-02-10",
-        "photo": None,
-        "branch_services": [5],
-    },
-    {
-        "email": "senya@ya.ru",
-        "password": "Test1234",
-        "first_name": "Арсений",
-        "last_name": "Красоткин",
-        "specialization": "Врач лабораторной диагностики",
-        "work_started_at": "2019-06-20",
-        "photo": None,
-        "branch_services": [3],
-    },
-]
+from .doctors import DOCTORS
 
 
 class Command(BaseCommand):

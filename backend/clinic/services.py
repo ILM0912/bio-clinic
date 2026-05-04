@@ -23,7 +23,7 @@ class AvatarColor(Enum):
 AVATAR_COLORS = [color.value for color in AvatarColor]
 
 AVATAR_FONT_NAME = "DejaVuSans-Bold.ttf"
-AVATAR_FONT_SIZE = 90
+AVATAR_FONT_SIZE = 80
 AVATAR_SIZE = (200, 200)
 AVATAR_TEXT_ANCHOR = (0, 0)
 AVATAR_TEXT_COLOR = "#FFFFFF"
@@ -71,7 +71,7 @@ def set_doctor_photo(doctor_profile, photo_name=None):
         if photo_path.exists():
             with photo_path.open("rb") as photo_file:
                 doctor_profile.photo.save(
-                    f"doctors/photos/{photo_name}",
+                    photo_name,
                     ContentFile(photo_file.read(), name=photo_name),
                     save=True,
                 )
@@ -82,7 +82,7 @@ def set_doctor_photo(doctor_profile, photo_name=None):
         filename=f"doctor_{doctor_profile.user.id}_avatar.png",
     )
     doctor_profile.photo.save(
-        f"doctors/photos/{avatar.name}",
+        avatar.name,
         avatar,
         save=True,
     )

@@ -10,22 +10,36 @@
     "model": "clinic.servicegroup",
     "pk": 2,
     "fields": {
-      "name": "Анализы"
+      "name": "Диагностика"
     }
   },
   {
     "model": "clinic.servicegroup",
     "pk": 3,
     "fields": {
-      "name": "Диагностика"
+      "name": "Лабораторные исследования"
+    }
+  },
+  {
+    "model": "clinic.servicegroup",
+    "pk": 4,
+    "fields": {
+      "name": "Восстановление и терапия"
+    }
+  },
+  {
+    "model": "clinic.servicegroup",
+    "pk": 5,
+    "fields": {
+      "name": "Вакцинация"
     }
   },
   {
     "model": "clinic.branch",
     "pk": 1,
     "fields": {
-      "name": "Центральный филиал",
-      "address": "ул. Ленина, 10",
+      "name": "Филиал в Измайлово",
+      "address": "ул 11-я Парковая, д. 36",
       "phone": "+7 (999) 111-22-33"
     }
   },
@@ -33,8 +47,8 @@
     "model": "clinic.branch",
     "pk": 2,
     "fields": {
-      "name": "Филиал на Мира",
-      "address": "пр. Мира, 25",
+      "name": "Филиал в Раменках",
+      "address": "Мичуринский пр., 12к2",
       "phone": "+7 (999) 222-33-44"
     }
   },
@@ -44,7 +58,7 @@
     "fields": {
       "group": 1,
       "title": "Прием терапевта",
-      "description": "Первичный осмотр врача-терапевта, сбор анамнеза, измерение давления и назначение лечения.",
+      "description": "Первичный прием врача-терапевта: сбор жалоб, измерение давления, оценка общего состояния и подбор дальнейшего плана обследования или лечения.",
       "price": "1500.00",
       "is_active": true
     }
@@ -55,7 +69,7 @@
     "fields": {
       "group": 1,
       "title": "Консультация кардиолога",
-      "description": "Прием кардиолога, оценка состояния сердечно-сосудистой системы и подбор рекомендаций.",
+      "description": "Прием кардиолога для оценки состояния сердечно-сосудистой системы, факторов риска, жалоб на давление, сердцебиение или боли в груди.",
       "price": "2200.00",
       "is_active": true
     }
@@ -64,67 +78,182 @@
     "model": "clinic.service",
     "pk": 3,
     "fields": {
+      "group": 1,
+      "title": "Консультация невролога",
+      "description": "Осмотр невролога при головных болях, болях в спине, нарушениях сна, онемении, головокружении и других неврологических жалобах.",
+      "price": "2100.00",
+      "is_active": true
+    }
+  },
+
+  {
+    "model": "clinic.service",
+    "pk": 4,
+    "fields": {
       "group": 2,
+      "title": "УЗИ брюшной полости",
+      "description": "Ультразвуковое исследование органов брюшной полости: печени, желчного пузыря, поджелудочной железы, селезенки и других структур.",
+      "price": "1800.00",
+      "is_active": true
+    }
+  },
+  {
+    "model": "clinic.service",
+    "pk": 5,
+    "fields": {
+      "group": 2,
+      "title": "ЭКГ с расшифровкой",
+      "description": "Электрокардиография в 12 отведениях с последующей расшифровкой результатов специалистом и краткими рекомендациями.",
+      "price": "900.00",
+      "is_active": true
+    }
+  },
+  {
+    "model": "clinic.service",
+    "pk": 6,
+    "fields": {
+      "group": 2,
+      "title": "УЗИ щитовидной железы",
+      "description": "Ультразвуковая диагностика щитовидной железы для оценки размеров, структуры тканей и выявления возможных узловых изменений.",
+      "price": "1600.00",
+      "is_active": true
+    }
+  },
+
+  {
+    "model": "clinic.service",
+    "pk": 7,
+    "fields": {
+      "group": 3,
       "title": "Общий анализ крови",
-      "description": "Клинический анализ крови с основными показателями.",
+      "description": "Клиническое исследование крови с основными показателями для оценки общего состояния организма и выявления признаков воспаления.",
       "price": "700.00",
       "is_active": true
     }
   },
   {
     "model": "clinic.service",
-    "pk": 4,
+    "pk": 8,
     "fields": {
       "group": 3,
-      "title": "УЗИ брюшной полости",
-      "description": "Ультразвуковое исследование органов брюшной полости.",
-      "price": "1800.00",
+      "title": "Биохимия крови",
+      "description": "Расширенное исследование крови для оценки работы печени, почек, обмена веществ, уровня глюкозы, белка и других важных показателей.",
+      "price": "1200.00",
       "is_active": true
     }
   },
   {
-    "model": "clinic.branchservice",
-    "pk": 1,
+    "model": "clinic.service",
+    "pk": 9,
     "fields": {
-      "branch": 1,
-      "service": 1,
+      "group": 3,
+      "title": "Гормональный профиль",
+      "description": "Комплексное исследование гормональных показателей для диагностики эндокринных нарушений и контроля состояния организма.",
+      "price": "2500.00",
+      "is_active": true
+    }
+  },
+
+  {
+    "model": "clinic.service",
+    "pk": 10,
+    "fields": {
+      "group": 4,
+      "title": "Инфузионная терапия",
+      "description": "Внутривенное капельное введение растворов и препаратов по назначению врача в комфортных условиях процедурного кабинета.",
+      "price": "1600.00",
       "is_active": true
     }
   },
   {
-    "model": "clinic.branchservice",
-    "pk": 2,
+    "model": "clinic.service",
+    "pk": 11,
     "fields": {
-      "branch": 1,
-      "service": 2,
+      "group": 4,
+      "title": "Лазеротерапия",
+      "description": "Физиотерапевтическое воздействие низкоинтенсивным лазерным излучением для восстановления, уменьшения воспаления и улучшения самочувствия.",
+      "price": "1400.00",
       "is_active": true
     }
   },
   {
-    "model": "clinic.branchservice",
-    "pk": 3,
+    "model": "clinic.service",
+    "pk": 12,
     "fields": {
-      "branch": 1,
-      "service": 3,
+      "group": 4,
+      "title": "Магнитотерапия",
+      "description": "Воздействие низкочастотным магнитным полем для поддержки восстановления тканей, снижения дискомфорта и улучшения микроциркуляции.",
+      "price": "1300.00",
+      "is_active": true
+    }
+  },
+
+  {
+    "model": "clinic.service",
+    "pk": 13,
+    "fields": {
+      "group": 5,
+      "title": "Вакцинация от гриппа",
+      "description": "Сезонная вакцинация от гриппа с предварительной оценкой самочувствия, проверкой противопоказаний и рекомендациями после процедуры.",
+      "price": "1300.00",
       "is_active": true
     }
   },
   {
-    "model": "clinic.branchservice",
-    "pk": 4,
+    "model": "clinic.service",
+    "pk": 14,
     "fields": {
-      "branch": 2,
-      "service": 1,
+      "group": 5,
+      "title": "Вакцинация от COVID-19",
+      "description": "Вакцинация от коронавирусной инфекции с предварительной консультацией и оформлением необходимых медицинских данных.",
+      "price": "1500.00",
       "is_active": true
     }
   },
   {
-    "model": "clinic.branchservice",
-    "pk": 5,
+    "model": "clinic.service",
+    "pk": 15,
     "fields": {
-      "branch": 2,
-      "service": 4,
+      "group": 5,
+      "title": "Вакцинация от клещевого энцефалита",
+      "description": "Профилактическая вакцинация от клещевого энцефалита перед сезоном активности клещей или поездками в эндемичные регионы.",
+      "price": "1700.00",
       "is_active": true
     }
-  }
+  },
+
+  { "model": "clinic.branchservice", "pk": 1, "fields": { "branch": 1, "service": 1, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 2, "fields": { "branch": 2, "service": 1, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 3, "fields": { "branch": 1, "service": 2, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 4, "fields": { "branch": 2, "service": 2, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 5, "fields": { "branch": 1, "service": 3, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 6, "fields": { "branch": 2, "service": 3, "is_active": true } },
+
+  { "model": "clinic.branchservice", "pk": 7, "fields": { "branch": 1, "service": 4, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 8, "fields": { "branch": 2, "service": 4, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 9, "fields": { "branch": 1, "service": 5, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 10, "fields": { "branch": 2, "service": 5, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 11, "fields": { "branch": 1, "service": 6, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 12, "fields": { "branch": 2, "service": 6, "is_active": true } },
+
+  { "model": "clinic.branchservice", "pk": 13, "fields": { "branch": 1, "service": 7, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 14, "fields": { "branch": 2, "service": 7, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 15, "fields": { "branch": 1, "service": 8, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 16, "fields": { "branch": 2, "service": 8, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 17, "fields": { "branch": 1, "service": 9, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 18, "fields": { "branch": 2, "service": 9, "is_active": true } },
+  
+  { "model": "clinic.branchservice", "pk": 19, "fields": { "branch": 1, "service": 10, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 20, "fields": { "branch": 2, "service": 10, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 21, "fields": { "branch": 1, "service": 11, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 22, "fields": { "branch": 2, "service": 11, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 23, "fields": { "branch": 1, "service": 12, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 24, "fields": { "branch": 2, "service": 12, "is_active": true } },
+
+  { "model": "clinic.branchservice", "pk": 25, "fields": { "branch": 1, "service": 13, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 26, "fields": { "branch": 2, "service": 13, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 27, "fields": { "branch": 1, "service": 14, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 28, "fields": { "branch": 2, "service": 14, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 29, "fields": { "branch": 1, "service": 15, "is_active": true } },
+  { "model": "clinic.branchservice", "pk": 30, "fields": { "branch": 2, "service": 15, "is_active": true } }
 ]
