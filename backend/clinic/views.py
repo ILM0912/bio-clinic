@@ -51,12 +51,13 @@ class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
 
 class DoctorProfileViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DoctorProfileSerializer
+
     def get_queryset(self):
         return (
             DoctorProfile.objects
             .filter(is_active=True)
             .select_related('user')
-            .order_by('user__last_name', 'user__first_name')
+            .order_by('work_started_at', 'user__last_name', 'user__first_name')
         )
 
 

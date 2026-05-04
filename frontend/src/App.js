@@ -9,7 +9,7 @@ import Services from './components/pages/Services';
 import Appointment from './components/pages/Appointment';
 import Login from "./components/pages/Login";
 import Profile from './components/pages/Profile';
-// import Staff from './components/pages/Staff';
+import Staff from './components/pages/Staff';
 import { getCurrentUser } from './api/api';
 import { authChecked, login, logout } from './store/store';
 
@@ -53,7 +53,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/services" element={<Services />} />
           <Route path="/appointment/:serviceId" element={<Appointment />} />
-          {/* <Route path="/staff" element={<Staff />} /> */}
+          <Route path="/staff" element={<Staff />} />
         </Routes>
       </main>
     </BrowserRouter>

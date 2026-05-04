@@ -1,4 +1,5 @@
 import React from "react";
+import { getYearsWord } from "../../utils";
 
 function DoctorChoiceList({ doctors, selectedValue, onChange }) {
   if (doctors.length === 0) {
@@ -29,7 +30,7 @@ function DoctorChoiceList({ doctors, selectedValue, onChange }) {
                 isSelected ? "border-primary border-2" : ""
               }`}
               style={{
-                width: "280px",
+                width: "240px",
                 whiteSpace: "normal",
                 cursor: "pointer",
               }}
@@ -59,7 +60,7 @@ function DoctorChoiceList({ doctors, selectedValue, onChange }) {
                   </p>
 
                   <p className="text-muted mb-0 small">
-                    Стаж: {doctor.experience_years} лет
+                    Стаж: {doctor.experience_years} {getYearsWord(doctor.experience_years)}
                   </p>
                 </div>
               </div>

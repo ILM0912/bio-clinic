@@ -56,6 +56,10 @@ export const getService = (id) => {
   return fetch(`${API_URL}/services/${id}/`).then(checkResponse);
 };
 
+export const getDoctors = () => {
+  return fetch(`${API_URL}/doctors/`).then(checkResponse);
+};
+
 export const register = ({ email, first_name, last_name, password }) => {
   return fetch(`${API_URL}/auth/users/`, {
     method: "POST",
