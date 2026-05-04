@@ -188,6 +188,13 @@ class DoctorProfile(models.Model):
             years -= 1
 
         return years
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.photo:
+            from .services import set_doctor_photo
+
+            set_doctor_photo(self)
 
     class Meta:
         verbose_name = 'Профиль врача'

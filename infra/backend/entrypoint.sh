@@ -12,6 +12,8 @@ python manage.py migrate
 
 python manage.py loaddata db || true
 
+python manage.py seed_doctors || true
+
 python manage.py collectstatic --noinput
 
 cp -r /app/staticfiles/. /backend_static/static/
