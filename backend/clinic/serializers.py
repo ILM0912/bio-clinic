@@ -1,3 +1,6 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import IntegrityError
+from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
 from djoser.serializers import UserSerializer as BaseUserSerializer
 from rest_framework import serializers
@@ -145,7 +148,12 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request')
-        return Appointment.objects.create(
-            patient=request.user,
-            **validated_data,
-        )
+        try:
+            return Appointment.objects.create(
+                patient=request.user,
+                **validated_data,
+            )
+        except IntegrityError:
+            raise serializers.ValidationError(
+                'На выбранное время врач уже занят.'
+            )

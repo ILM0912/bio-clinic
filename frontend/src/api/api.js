@@ -4,28 +4,29 @@ const getErrorMessage = (data) => {
   if (typeof data === "string") {
     return data;
   }
-
   if (Array.isArray(data)) {
     return data.join(" ");
   }
-
   if (typeof data === "object" && data !== null) {
-    return Object.values(data)
-      .flat()
-      .join(" ");
+    return Object.values(data).flat().join(" ");
   }
-
   return "Ошибка запроса";
 };
 
-const checkResponse = (response) => {
-  if (response.ok) {
-    return response.json();
-  }
+const checkResponse = async (response) => {
+  const contentType = response.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    if (!response.ok) {
+      throw new Error(`Ошибка сервера: ${response.status}`);
+    }
 
-  return response.json().then((data) => {
+    return null;
+  }
+  const data = await response.json();
+  if (!response.ok) {
     throw new Error(getErrorMessage(data));
-  });
+  }
+  return data;
 };
 
 export const getGroups = () => {
@@ -112,5 +113,38 @@ export const getCurrentUser = () => {
     headers: {
       Authorization: `Token ${token}`,
     },
+  }).then(checkResponse);
+};
+
+export const getDoctorServices = (serviceId) => {
+  return fetch(`${API_URL}/doctor-services/?service=${serviceId}`).then(
+    checkResponse
+  );
+};
+
+export const getBusySlots = ({ doctorBranchServiceId, date }) => {
+  const params = new URLSearchParams();
+
+  params.set("doctor_branch_service", doctorBranchServiceId);
+  params.set("date", date);
+
+  return fetch(`${API_URL}/appointments/busy-slots/?${params.toString()}`).then(
+    checkResponse
+  );
+};
+
+export const createAppointment = ({ doctorBranchServiceId, dateTime }) => {
+  const token = localStorage.getItem("auth_token");
+
+  return fetch(`${API_URL}/appointments/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Token ${token}`,
+    },
+    body: JSON.stringify({
+      doctor_branch_service: doctorBranchServiceId,
+      date_time: dateTime,
+    }),
   }).then(checkResponse);
 };

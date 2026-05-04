@@ -276,9 +276,6 @@ class Appointment(models.Model):
     )
 
     def clean(self):
-        if not self.doctor_branch_service:
-            return
-
         doctor_branch_service = self.doctor_branch_service
         branch_service = doctor_branch_service.branch_service
         service = branch_service.service
@@ -286,43 +283,56 @@ class Appointment(models.Model):
 
         if not service.is_active:
             raise ValidationError('Услуга отключена в клинике.')
-
         if not branch_service.is_active:
             raise ValidationError('Услуга недоступна в выбранном филиале.')
-
         if not doctor.is_active:
             raise ValidationError('Врач неактивен.')
-
         if not doctor_branch_service.is_active:
             raise ValidationError(
                 'Врач не оказывает эту услугу в выбранном филиале.'
             )
 
-        if self.date_time and self.date_time <= timezone.now():
+        appointment_time = self.date_time
+
+        if timezone.is_naive(appointment_time):
+            appointment_time = timezone.make_aware(
+                appointment_time,
+                timezone.get_current_timezone(),
+            )
+
+        local_appointment_time = timezone.localtime(appointment_time)
+        local_now = timezone.localtime()
+        if local_appointment_time <= local_now:
             raise ValidationError('Нельзя записаться на прошедшее время.')
-        
+        if local_appointment_time.weekday() in (5, 6):
+            raise ValidationError('Запись доступна только в будние дни.')
+        if local_appointment_time.hour < 9 or local_appointment_time.hour >= 17:
+            raise ValidationError('Запись доступна только с 09:00 до 17:00.')
+        if local_appointment_time.minute not in (0, 30):
+            raise ValidationError('Запись доступна только с шагом 30 минут.')
+
         if Appointment.objects.filter(
-            doctor_branch_service=doctor_branch_service,
+            doctor_branch_service__doctor=doctor,
             date_time=self.date_time,
         ).exclude(pk=self.pk).exclude(
             status=self.STATUS_CANCELLED,
         ).exists():
             raise ValidationError('На выбранное время врач уже занят.')
 
-    class Meta:
-        verbose_name = 'Запись'
-        verbose_name_plural = 'Записи'
-        ordering = ['-date_time']
-        constraints = [
-            models.UniqueConstraint(
-                fields=['doctor_branch_service', 'date_time'],
-                name='unique_doctor_appointment_time',
-            )
-        ]
+        class Meta:
+            verbose_name = 'Запись'
+            verbose_name_plural = 'Записи'
+            ordering = ['-date_time']
+            constraints = [
+                models.UniqueConstraint(
+                    fields=['doctor_branch_service', 'date_time'],
+                    name='unique_doctor_appointment_time',
+                )
+            ]
 
-    def __str__(self):
-        return (
-            f'{self.patient} - '
-            f'{self.doctor_branch_service.branch_service.service} - '
-            f'{self.date_time}'
-        )
+        def __str__(self):
+            return (
+                f'{self.patient} - '
+                f'{self.doctor_branch_service.branch_service.service} - '
+                f'{self.date_time}'
+            )

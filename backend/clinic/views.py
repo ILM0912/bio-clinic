@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import datetime, time, timedelta
 
+from django.utils import timezone
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -119,7 +120,6 @@ class AppointmentViewSet(viewsets.GenericViewSet):
 
         return Response(response_serializer.data, status=201)
 
-
     @action(
         detail=False,
         methods=('get',),
@@ -149,16 +149,66 @@ class AppointmentViewSet(viewsets.GenericViewSet):
                 status=400,
             )
 
+        all_slots = []
+        current_time = datetime.combine(
+            selected_date,
+            time(hour=9, minute=0),
+        )
+        end_time = datetime.combine(
+            selected_date,
+            time(hour=17, minute=0),
+        )
+
+        while current_time < end_time:
+            all_slots.append(current_time.strftime('%H:%M'))
+            current_time += timedelta(minutes=30)
+
+        now = timezone.localtime()
+        if selected_date < now.date():
+            return Response({'busy_slots': all_slots})
+        if selected_date.weekday() in (5, 6):
+            return Response({'busy_slots': all_slots})
+
+        try:
+            doctor_branch_service = DoctorBranchService.objects.get(
+                id=doctor_branch_service_id
+            )
+        except DoctorBranchService.DoesNotExist:
+            return Response(
+                {'detail': 'Связь врача с услугой не найдена.'},
+                status=404,
+            )
+
+        current_timezone = timezone.get_current_timezone()
+        day_start = timezone.make_aware(
+            datetime.combine(selected_date, time.min),
+            current_timezone,
+        )
+        day_end = timezone.make_aware(
+            datetime.combine(selected_date, time.max),
+            current_timezone,
+        )
+
         appointments = Appointment.objects.filter(
-            doctor_branch_service_id=doctor_branch_service_id,
-            date_time__date=selected_date,
+            doctor_branch_service__doctor=doctor_branch_service.doctor,
+            date_time__gte=day_start,
+            date_time__lte=day_end,
         ).exclude(
             status=Appointment.STATUS_CANCELLED,
         )
 
         busy_slots = [
-            appointment.date_time.strftime('%H:%M')
+            timezone.localtime(appointment.date_time).strftime('%H:%M')
             for appointment in appointments
         ]
+
+        if selected_date == now.date():
+            for slot in all_slots:
+                slot_time = datetime.strptime(slot, '%H:%M').time()
+
+                if slot_time <= now.time():
+                    busy_slots.append(slot)
+
+        busy_slots = sorted(set(busy_slots))
 
         return Response({'busy_slots': busy_slots})
