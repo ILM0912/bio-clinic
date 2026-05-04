@@ -300,11 +300,25 @@ class Appointment(models.Model):
 
         if self.date_time and self.date_time <= timezone.now():
             raise ValidationError('Нельзя записаться на прошедшее время.')
+        
+        if Appointment.objects.filter(
+            doctor_branch_service=doctor_branch_service,
+            date_time=self.date_time,
+        ).exclude(pk=self.pk).exclude(
+            status=self.STATUS_CANCELLED,
+        ).exists():
+            raise ValidationError('На выбранное время врач уже занят.')
 
     class Meta:
         verbose_name = 'Запись'
         verbose_name_plural = 'Записи'
         ordering = ['-date_time']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['doctor_branch_service', 'date_time'],
+                name='unique_doctor_appointment_time',
+            )
+        ]
 
     def __str__(self):
         return (

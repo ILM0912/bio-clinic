@@ -2,7 +2,15 @@ from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
 from djoser.serializers import UserSerializer as BaseUserSerializer
 from rest_framework import serializers
 
-from .models import Branch, DoctorProfile, Service, ServiceGroup, User
+from .models import (
+    Appointment,
+    Branch,
+    DoctorBranchService,
+    DoctorProfile,
+    Service,
+    ServiceGroup,
+    User,
+)
 
 
 class BranchSerializer(serializers.ModelSerializer):
@@ -82,4 +90,62 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
             'photo',
             'specialization',
             'experience_years',
+        )
+
+
+class DoctorBranchServiceSerializer(serializers.ModelSerializer):
+    doctor = DoctorProfileSerializer(read_only=True)
+    branch = serializers.SerializerMethodField()
+    service = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DoctorBranchService
+        fields = (
+            'id',
+            'doctor',
+            'branch',
+            'service',
+        )
+
+    def get_branch(self, obj):
+        return BranchSerializer(obj.branch_service.branch).data
+
+    def get_service(self, obj):
+        return ServiceSerializer(obj.branch_service.service).data
+
+
+class AppointmentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = (
+            'id',
+            'doctor_branch_service',
+            'date_time',
+            'status',
+            'created_at',
+        )
+        read_only_fields = (
+            'id',
+            'status',
+            'created_at',
+        )
+
+    def validate(self, attrs):
+        request = self.context.get('request')
+        appointment = Appointment(
+            patient=request.user,
+            doctor_branch_service=attrs.get('doctor_branch_service'),
+            date_time=attrs.get('date_time'),
+        )
+        try:
+            appointment.clean()
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(error.messages)
+        return attrs
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        return Appointment.objects.create(
+            patient=request.user,
+            **validated_data,
         )
