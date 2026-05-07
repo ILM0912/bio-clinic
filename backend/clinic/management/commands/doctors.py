@@ -40,6 +40,16 @@ DOCTORS = [
         "branch_services": [7, 8, 11, 12],
     },
     {
+        "email": "timofey.shestopalov@ya.ru",
+        "password": "Test1234",
+        "first_name": "Тимофей",
+        "last_name": "Шестопалов",
+        "specialization": "Физиотерапевт",
+        "work_started_at": "2005-05-05",
+        "photo": "doctor_5_avatar.jpg",
+        "branch_services": [19, 20, 21, 22, 23, 24],
+    },
+    {
         "email": "petr.petrov@ya.ru",
         "password": "Test1234",
         "first_name": "Петр",
@@ -68,16 +78,6 @@ DOCTORS = [
         "work_started_at": "2014-02-18",
         "photo": None,
         "branch_services": [7, 11],
-    },
-    {
-        "email": "daria.kuznetsova@ya.ru",
-        "password": "Test1234",
-        "first_name": "Дарья",
-        "last_name": "Кузнецова",
-        "specialization": "Физиотерапевт",
-        "work_started_at": "2021-04-09",
-        "photo": None,
-        "branch_services": [19, 20, 21, 22, 23, 24],
     },
     {
         "email": "nikolay.smirnov@ya.ru",

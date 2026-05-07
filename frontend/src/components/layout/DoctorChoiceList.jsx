@@ -30,13 +30,13 @@ function DoctorChoiceList({ doctors, selectedValue, onChange }) {
                 isSelected ? "border-primary border-2" : ""
               }`}
               style={{
-                width: "240px",
+                width: "300px",
                 whiteSpace: "normal",
                 cursor: "pointer",
               }}
               onClick={() => onChange(item.id)}
             >
-              <div className="card-body d-flex gap-3 align-items-center">
+              <div className="card-body d-flex gap-2 align-items-center p-2">
                 {doctor.photo && (
                   <img
                     src={doctor.photo}

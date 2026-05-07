@@ -140,7 +140,7 @@ function Services() {
 
               <div className="row g-3">
                 {groupServices.map((service) => (
-                  <div key={service.id} className="col-6 col-md-6 col-lg-4">
+                  <div key={service.id} className="col-12 col-md-6 col-lg-4">
                     <ServiceItem
                       id={service.id}
                       title={service.title}

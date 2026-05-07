@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { getDoctors } from "../../api/api";
+import { getYearsWord } from "../../utils";
 
 function Staff() {
   const [doctors, setDoctors] = useState([]);
@@ -79,7 +80,7 @@ function Staff() {
                   </p>
 
                   <p className="text-muted mb-0">
-                    Стаж: {doctor.experience_years} лет
+                    Стаж: {doctor.experience_years} {getYearsWord(doctor.experience_years)}
                   </p>
                 </div>
               </div>

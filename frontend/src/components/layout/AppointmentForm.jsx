@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import { createAppointment, getBusySlots } from "../../api/api";
 import DoctorChoiceList from "./DoctorChoiceList";
-import SelectFilter from "./SelectFilter";
+import ButtonFilter from "./ButtonFilter";
 import TimeSlotPicker from "./TimeSlotPicker";
 
 const getTodayDate = () => {
@@ -180,16 +180,13 @@ function AppointmentForm({ doctorServices }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="mb-4 col-12 col-md-6">
-        <SelectFilter
-          id="branch-select"
-          label="Филиал"
+        <ButtonFilter
+          title="Филиал"
           items={branches}
           selectedValue={selectedBranchId}
           onChange={handleBranchChange}
-          allLabel="Выберите филиал"
+          showAll={false}
         />
-      </div>
 
       {selectedBranchId && (
         <DoctorChoiceList

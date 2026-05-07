@@ -6,6 +6,7 @@ function ButtonFilter({
   selectedValue,
   onChange,
   allLabel = "Все",
+  showAll = true,
 }) {
   return (
     <div className="mb-4">
@@ -15,15 +16,17 @@ function ButtonFilter({
         className="d-flex gap-2 overflow-auto pb-2"
         style={{ whiteSpace: "nowrap" }}
       >
-        <button
-          type="button"
-          className={`btn flex-shrink-0 ${
-            selectedValue === null ? "btn-primary" : "btn-outline-primary"
-          }`}
-          onClick={() => onChange(null)}
-        >
-          {allLabel}
-        </button>
+        {showAll && (
+          <button
+            type="button"
+            className={`btn flex-shrink-0 ${
+              selectedValue === null ? "btn-primary" : "btn-outline-primary"
+            }`}
+            onClick={() => onChange(null)}
+          >
+            {allLabel}
+          </button>
+        )}
 
         {items.map((item) => (
           <button
