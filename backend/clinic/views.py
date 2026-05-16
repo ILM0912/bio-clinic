@@ -28,6 +28,26 @@ from .serializers import (
 )
 
 
+MAX_ID_VALUE = 2147483647
+
+
+def validate_int_query_param(value, field_name):
+    if value is None:
+        return None
+
+    try:
+        int_value = int(value)
+    except (TypeError, ValueError):
+        raise ValidationError({
+            field_name: 'Параметр должен быть числом.'
+        })
+    if int_value < 1 or int_value > MAX_ID_VALUE:
+        raise ValidationError({
+            field_name: 'Некорректное значение идентификатора.'
+        })
+    return int_value
+
+
 class BranchViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Branch.objects.all()
     serializer_class = BranchSerializer
@@ -42,15 +62,22 @@ class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ServiceSerializer
     def get_queryset(self):
         queryset = Service.objects.filter(is_active=True)
-        branch_id = self.request.query_params.get('branch')
-        group_id = self.request.query_params.get('group')
-        if branch_id:
+        branch_id = validate_int_query_param(
+            self.request.query_params.get('branch'),
+            'branch',
+        )
+        group_id = validate_int_query_param(
+            self.request.query_params.get('group'),
+            'group',
+        )
+        if branch_id is not None:
             queryset = queryset.filter(
                 branch_services__branch_id=branch_id,
                 branch_services__is_active=True,
             )
-        if group_id:
+        if group_id is not None:
             queryset = queryset.filter(group_id=group_id)
+
         return queryset.distinct()
 
 
@@ -89,8 +116,11 @@ class DoctorBranchServiceViewSet(viewsets.ReadOnlyModelViewSet):
                 'doctor__user__first_name',
             )
         )
-        service_id = self.request.query_params.get('service')
-        if service_id:
+        service_id = validate_int_query_param(
+            self.request.query_params.get('service'),
+            'service',
+        )
+        if service_id is not None:
             queryset = queryset.filter(
                 branch_service__service_id=service_id,
             )
