@@ -238,13 +238,11 @@ class DoctorBranchService(models.Model):
 
 class Appointment(models.Model):
     STATUS_CREATED = 'created'
-    STATUS_CONFIRMED = 'confirmed'
     STATUS_CANCELLED = 'cancelled'
     STATUS_COMPLETED = 'completed'
 
     STATUS_CHOICES = [
         (STATUS_CREATED, 'Создана'),
-        (STATUS_CONFIRMED, 'Подтверждена'),
         (STATUS_CANCELLED, 'Отменена'),
         (STATUS_COMPLETED, 'Завершена'),
     ]
@@ -319,20 +317,20 @@ class Appointment(models.Model):
         ).exists():
             raise ValidationError('На выбранное время врач уже занят.')
 
-        class Meta:
-            verbose_name = 'Запись'
-            verbose_name_plural = 'Записи'
-            ordering = ['-date_time']
-            constraints = [
-                models.UniqueConstraint(
-                    fields=['doctor_branch_service', 'date_time'],
-                    name='unique_doctor_appointment_time',
-                )
-            ]
-
-        def __str__(self):
-            return (
-                f'{self.patient} - '
-                f'{self.doctor_branch_service.branch_service.service} - '
-                f'{self.date_time}'
+    class Meta:
+        verbose_name = 'Запись'
+        verbose_name_plural = 'Записи'
+        ordering = ['-date_time']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['doctor_branch_service', 'date_time'],
+                name='unique_doctor_appointment_time',
             )
+        ]
+
+    def __str__(self):
+        return (
+            f'{self.patient} - '
+            f'{self.doctor_branch_service.branch_service.service} - '
+            f'{self.date_time}'
+        )

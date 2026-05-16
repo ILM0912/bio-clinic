@@ -1,8 +1,10 @@
 from datetime import datetime, time, timedelta
 
+from django.db.models import Q
 from django.utils import timezone
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from .models import (
@@ -13,8 +15,11 @@ from .models import (
     Service,
     ServiceGroup,
 )
+from .permissions import IsAppointmentOwnerOrDoctor
 from .serializers import (
     AppointmentCreateSerializer,
+    AppointmentReadSerializer,
+    AppointmentStatusSerializer,
     BranchSerializer,
     DoctorProfileSerializer,
     DoctorBranchServiceSerializer,
@@ -92,22 +97,78 @@ class DoctorBranchServiceViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset
 
 
-class AppointmentViewSet(viewsets.GenericViewSet):
-    serializer_class = AppointmentCreateSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+class AppointmentViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAppointmentOwnerOrDoctor,)
+    http_method_names = ('get', 'post', 'patch', 'head', 'options')
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return AppointmentCreateSerializer
+        if self.action == 'partial_update':
+            return AppointmentStatusSerializer
+        return AppointmentReadSerializer
 
     def get_queryset(self):
-        return (
+        queryset = (
             Appointment.objects
-            .filter(patient=self.request.user)
             .select_related(
                 'patient',
                 'doctor_branch_service__doctor__user',
                 'doctor_branch_service__branch_service__branch',
                 'doctor_branch_service__branch_service__service',
             )
-            .order_by('-date_time')
         )
+
+        user = self.request.user
+
+        if user.role == user.ROLE_PATIENT:
+            queryset = queryset.filter(patient=user)
+            scope = self.request.query_params.get('scope')
+            if scope == 'upcoming':
+                return (
+                    queryset
+                    .filter(
+                        date_time__gte=timezone.now(),
+                        status=Appointment.STATUS_CREATED,
+                    )
+                    .order_by('date_time')
+                )
+            if scope == 'history':
+                return (
+                    queryset
+                    .filter(
+                        Q(date_time__lt=timezone.now())
+                        | Q(status=Appointment.STATUS_CANCELLED)
+                    )
+                    .order_by('-date_time')
+                )
+            return queryset.order_by('-date_time')
+
+        if user.role == user.ROLE_DOCTOR:
+            try:
+                doctor_profile = user.doctor_profile
+            except DoctorProfile.DoesNotExist:
+                return Appointment.objects.none()
+            queryset = (
+                queryset
+                .filter(doctor_branch_service__doctor=doctor_profile,)
+                .exclude(status=Appointment.STATUS_CANCELLED,)
+            )
+            date_value = self.request.query_params.get('date')
+            if date_value:
+                try:
+                    selected_date = datetime.strptime(
+                        date_value,
+                        '%Y-%m-%d',
+                    ).date()
+                except ValueError:
+                    raise ValidationError(
+                        {'date': 'Неверный формат даты. Используйте YYYY-MM-DD.'}
+                    )
+                queryset = queryset.filter(date_time__date=selected_date)
+            return queryset.order_by('date_time')
+
+        return Appointment.objects.none()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(
@@ -116,9 +177,7 @@ class AppointmentViewSet(viewsets.GenericViewSet):
         )
         serializer.is_valid(raise_exception=True)
         appointment = serializer.save()
-
-        response_serializer = self.get_serializer(appointment)
-
+        response_serializer = AppointmentReadSerializer(appointment)
         return Response(response_serializer.data, status=201)
 
     @action(

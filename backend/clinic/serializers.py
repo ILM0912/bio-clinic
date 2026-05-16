@@ -1,9 +1,9 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import IntegrityError
+from django.utils import timezone
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
 from djoser.serializers import UserSerializer as BaseUserSerializer
-from rest_framework import serializers
 
 from .models import (
     Appointment,
@@ -157,3 +157,83 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'На выбранное время врач уже занят.'
             )
+
+
+class AppointmentReadSerializer(serializers.ModelSerializer):
+    patient_full_name = serializers.SerializerMethodField()
+    doctor_full_name = serializers.SerializerMethodField()
+    branch_name = serializers.CharField(
+        source='doctor_branch_service.branch_service.branch.name',
+        read_only=True,
+    )
+    service_title = serializers.CharField(
+        source='doctor_branch_service.branch_service.service.title',
+        read_only=True,
+    )
+    status_display = serializers.CharField(
+        source='get_status_display',
+        read_only=True,
+    )
+
+    class Meta:
+        model = Appointment
+        fields = (
+            'id',
+            'patient_full_name',
+            'doctor_full_name',
+            'branch_name',
+            'service_title',
+            'date_time',
+            'status',
+            'status_display',
+        )
+
+    def get_patient_full_name(self, obj):
+        return obj.patient.get_full_name()
+
+    def get_doctor_full_name(self, obj):
+        return obj.doctor_branch_service.doctor.user.get_full_name()
+
+
+class AppointmentStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = ('status',)
+
+    def validate_status(self, value):
+        request = self.context['request']
+        user = request.user
+        if user.role == user.ROLE_PATIENT:
+            if value != Appointment.STATUS_CANCELLED:
+                raise serializers.ValidationError(
+                    'Пациент может только отменить запись.'
+                )
+        elif user.role == user.ROLE_DOCTOR:
+            if value != Appointment.STATUS_COMPLETED:
+                raise serializers.ValidationError(
+                    'Врач может только завершить запись.'
+                )
+        else:
+            raise serializers.ValidationError(
+                'Недопустимое изменение статуса.'
+            )
+        return value
+
+    def validate(self, attrs):
+        appointment = self.instance
+        user = self.context['request'].user
+        if user.role == user.ROLE_PATIENT:
+            if appointment.date_time < timezone.now():
+                raise serializers.ValidationError(
+                    'Нельзя отменить прошедшую запись.'
+                )
+            if appointment.status != Appointment.STATUS_CREATED:
+                raise serializers.ValidationError(
+                    'Можно отменить только активную запись.'
+                )
+        if user.role == user.ROLE_DOCTOR:
+            if appointment.status == Appointment.STATUS_CANCELLED:
+                raise serializers.ValidationError(
+                    'Нельзя завершить отменённую запись.'
+                )
+        return attrs
