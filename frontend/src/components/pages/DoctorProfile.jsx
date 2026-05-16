@@ -102,10 +102,6 @@ const DoctorProfile = ({ user }) => {
 
   return (
     <div>
-      <h2 className="mb-2">
-        Привет, {user.first_name} {user.last_name}
-      </h2>
-
       <p className="text-muted mb-4">
         Здесь отображается расписание приёмов на выбранную дату.
       </p>

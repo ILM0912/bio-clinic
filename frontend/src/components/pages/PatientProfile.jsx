@@ -111,10 +111,6 @@ const PatientProfile = ({ user }) => {
 
   return (
     <div>
-      <h2 className="mb-2">
-        Привет, {user.first_name} {user.last_name}
-      </h2>
-
       <p className="text-muted mb-4">
         Здесь отображаются будущие записи и история посещений.
       </p>
