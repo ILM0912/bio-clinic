@@ -152,3 +152,58 @@ export const createAppointment = ({ doctorBranchServiceId, dateTime }) => {
     }),
   }).then(checkResponse);
 };
+
+export const getUpcomingAppointments = () => {
+  const token = localStorage.getItem("auth_token");
+
+  return fetch(`${API_URL}/appointments/?scope=upcoming`, {
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  }).then(checkResponse);
+};
+
+export const getAppointmentHistory = () => {
+  const token = localStorage.getItem("auth_token");
+
+  return fetch(`${API_URL}/appointments/?scope=history`, {
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  }).then(checkResponse);
+};
+
+export const getDoctorSchedule = (date) => {
+  const token = localStorage.getItem("auth_token");
+  const params = new URLSearchParams();
+
+  if (date) {
+    params.set("date", date);
+  }
+
+  const queryString = params.toString();
+  const url = queryString
+    ? `${API_URL}/appointments/?${queryString}`
+    : `${API_URL}/appointments/`;
+
+  return fetch(url, {
+    headers: {
+      Authorization: `Token ${token}`,
+    },
+  }).then(checkResponse);
+};
+
+export const updateAppointmentStatus = ({ appointmentId, status }) => {
+  const token = localStorage.getItem("auth_token");
+
+  return fetch(`${API_URL}/appointments/${appointmentId}/`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Token ${token}`,
+    },
+    body: JSON.stringify({
+      status,
+    }),
+  }).then(checkResponse);
+};

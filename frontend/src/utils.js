@@ -13,3 +13,25 @@ export function getYearsWord(years) {
   }
   return "лет";
 }
+
+export function formatDateTime(dateTime) {
+  return new Date(dateTime).toLocaleString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+export function getStatusBadgeClass(status) {
+  if (status === "completed") {
+    return "badge bg-success";
+  }
+
+  if (status === "cancelled") {
+    return "badge bg-secondary";
+  }
+
+  return "badge bg-primary";
+};

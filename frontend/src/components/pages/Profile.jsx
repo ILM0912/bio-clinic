@@ -1,6 +1,9 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
+import PatientProfile from "./PatientProfile";
+import DoctorProfile from "./DoctorProfile";
+
 const Profile = () => {
   const user = useSelector((state) => state.user);
 
@@ -12,19 +15,20 @@ const Profile = () => {
     );
   }
 
-  const role = user.role;
-
-  let content = "";
-
-  if (role === "patient") {
-    content = "Это страница пациента";
-  } else if (role === "doctor") {
-    content = "Это страница врача";
-  }
-
   return (
-    <div className="container text-center" style={{ paddingTop: "40px" }}>
-      <h2>{content}</h2>
+    <div className="container" style={{ paddingTop: "40px" }}>
+      <h2>
+        Привет, {user.first_name} {user.last_name}
+      </h2>
+      {user.role === "patient" && <PatientProfile user={user} />}
+      {user.role === "doctor" && <DoctorProfile user={user} />}
+      {user.role !== "patient" && user.role !== "doctor" && (
+        <div className="text-center">
+          <p className="text-muted">
+            Для вашей роли личный кабинет не настроен.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
