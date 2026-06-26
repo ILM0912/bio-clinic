@@ -43,7 +43,7 @@ const Login = () => {
     })
       .then((user) => {
         dispatch(loginAction(user));
-        navigate("/");
+        navigate("/profile");
       })
       .catch((error) => {
         setError("Неверный email или пароль");
@@ -79,7 +79,7 @@ const Login = () => {
       )
       .then((user) => {
         dispatch(loginAction(user));
-        navigate("/");
+        navigate("/profile");
       })
       .catch((error) => {
         setError(error.message);
