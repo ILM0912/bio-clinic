@@ -178,7 +178,11 @@ class DoctorProfile(models.Model):
 
     @property
     def experience_years(self):
-        today = timezone.now().date()
+        today = timezone.localtime(timezone.now()).date()
+
+        if self.work_started_at >= today:
+            return 0
+
         years = today.year - self.work_started_at.year
 
         if (today.month, today.day) < (
