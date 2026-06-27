@@ -19,6 +19,7 @@ frontend/build/
 
 # Env
 infra/.env
+infra/nginx/ssl/*
 
 # IDE
 .vscode/
