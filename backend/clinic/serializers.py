@@ -82,7 +82,7 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         read_only=True,
     )
     experience_years = serializers.IntegerField(read_only=True)
-    photo = serializers.ImageField(read_only=True)
+    photo = serializers.SerializerMethodField()
 
     class Meta:
         model = DoctorProfile
@@ -94,6 +94,9 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
             'specialization',
             'experience_years',
         )
+
+    def get_photo(self, obj):
+        return obj.photo.url if obj.photo else None
 
 
 class DoctorBranchServiceSerializer(serializers.ModelSerializer):
