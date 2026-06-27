@@ -51,5 +51,5 @@ services:
     volumes:
       - static:/static
       - media:/media
-      - ./infra/nginx/ssl:/etc/nginx/ssl
+      - ./nginx/ssl:/etc/nginx/ssl
     restart: unless-stopped
