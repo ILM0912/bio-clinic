@@ -19,7 +19,7 @@ from .permissions import IsAppointmentOwnerOrDoctor
 from .serializers import (
     AppointmentCreateSerializer,
     AppointmentReadSerializer,
-    AppointmentStatusSerializer,
+    AppointmentCompleteSerializer,
     BranchSerializer,
     DoctorProfileSerializer,
     DoctorBranchServiceSerializer,
@@ -129,13 +129,13 @@ class DoctorBranchServiceViewSet(viewsets.ReadOnlyModelViewSet):
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAppointmentOwnerOrDoctor,)
-    http_method_names = ('get', 'post', 'patch', 'head', 'options')
+    http_method_names = ('get', 'post', 'patch', 'delete', 'head', 'options')
 
     def get_serializer_class(self):
         if self.action == 'create':
             return AppointmentCreateSerializer
         if self.action == 'partial_update':
-            return AppointmentStatusSerializer
+            return AppointmentCompleteSerializer
         return AppointmentReadSerializer
 
     def get_queryset(self):
@@ -159,19 +159,20 @@ class AppointmentViewSet(viewsets.ModelViewSet):
                     queryset
                     .filter(
                         date_time__gte=timezone.now(),
-                        status=Appointment.STATUS_CREATED,
+                        is_completed=False,
                     )
                     .order_by('date_time')
                 )
             if scope == 'history':
-                return (
-                    queryset
-                    .filter(
-                        Q(date_time__lt=timezone.now())
-                        | Q(status=Appointment.STATUS_CANCELLED)
+                if scope == 'history':
+                    return (
+                        queryset
+                        .filter(
+                            Q(date_time__lt=timezone.now()) |
+                            Q(is_completed=True)
+                        )
+                        .order_by('-date_time')
                     )
-                    .order_by('-date_time')
-                )
             return queryset.order_by('-date_time')
 
         if user.role == user.ROLE_DOCTOR:
@@ -180,9 +181,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             except DoctorProfile.DoesNotExist:
                 return Appointment.objects.none()
             queryset = (
-                queryset
-                .filter(doctor_branch_service__doctor=doctor_profile,)
-                .exclude(status=Appointment.STATUS_CANCELLED,)
+                queryset.filter(
+                    doctor_branch_service__doctor=doctor_profile
+                )
             )
             date_value = self.request.query_params.get('date')
             if date_value:
@@ -209,6 +210,15 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         appointment = serializer.save()
         response_serializer = AppointmentReadSerializer(appointment)
         return Response(response_serializer.data, status=201)
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.is_completed:
+            raise PermissionDenied("Нельзя удалить завершённую запись")
+        if instance.date_time < timezone.now():
+            raise PermissionDenied("Нельзя удалить прошедшую запись")
+        instance.delete()
+        return Response(status=204)
 
     @action(
         detail=False,
@@ -283,8 +293,6 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             doctor_branch_service__doctor=doctor_branch_service.doctor,
             date_time__gte=day_start,
             date_time__lte=day_end,
-        ).exclude(
-            status=Appointment.STATUS_CANCELLED,
         )
 
         busy_slots = [

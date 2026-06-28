@@ -23,15 +23,3 @@ export function formatDateTime(dateTime) {
     minute: "2-digit",
   });
 };
-
-export function getStatusBadgeClass(status) {
-  if (status === "completed") {
-    return "badge bg-success";
-  }
-
-  if (status === "cancelled") {
-    return "badge bg-secondary";
-  }
-
-  return "badge bg-primary";
-};

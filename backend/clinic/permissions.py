@@ -5,13 +5,10 @@ class IsAppointmentOwnerOrDoctor(permissions.BasePermission):
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
-        if view.action in ('list', 'retrieve', 'create', 'busy_slots'):
+        if view.action in ('list', 'retrieve', 'create', 'busy_slots', 'destroy'):
             return True
-        if view.action in ('partial_update', 'update'):
-            return request.user.role in (
-                request.user.ROLE_PATIENT,
-                request.user.ROLE_DOCTOR,
-            )
+        if view.action == 'partial_update':
+            return request.user.role == request.user.ROLE_DOCTOR
         return False
 
     def has_object_permission(self, request, view, obj):
@@ -22,11 +19,11 @@ class IsAppointmentOwnerOrDoctor(permissions.BasePermission):
             if user.role == user.ROLE_DOCTOR:
                 return obj.doctor_branch_service.doctor == user.doctor_profile
             return False
+        if view.action == 'partial_update':
+            return (
+                obj.doctor_branch_service.doctor == user.doctor_profile
+            )
+        if view.action == 'destroy':
+            return obj.patient == user
 
-        if view.action in ('partial_update', 'update'):
-            if user.role == user.ROLE_PATIENT:
-                return obj.patient == user
-            if user.role == user.ROLE_DOCTOR:
-                return obj.doctor_branch_service.doctor == user.doctor_profile
-            return False
         return True

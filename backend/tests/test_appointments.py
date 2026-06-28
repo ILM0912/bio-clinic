@@ -80,16 +80,29 @@ def test_patient_can_cancel_own_future_appointment(
 ):
     api_client.force_authenticate(user=patient)
 
-    response = api_client.patch(
+    response = api_client.delete(
         f'/api/appointments/{appointment.id}/',
-        {'status': Appointment.STATUS_CANCELLED},
         format='json',
     )
 
-    appointment.refresh_from_db()
+    assert response.status_code == 204
+    assert not Appointment.objects.filter(id=appointment.id).exists()
 
-    assert response.status_code == 200
-    assert appointment.status == Appointment.STATUS_CANCELLED
+
+def test_patient_cannot_delete_another_patient_appointment(
+    api_client,
+    another_patient,
+    appointment,
+):
+    api_client.force_authenticate(user=another_patient)
+
+    response = api_client.delete(
+        f'/api/appointments/{appointment.id}/',
+        format='json',
+    )
+
+    assert response.status_code == 404
+    assert Appointment.objects.filter(id=appointment.id).exists()
 
 
 def test_patient_cannot_complete_appointment(
@@ -101,14 +114,14 @@ def test_patient_cannot_complete_appointment(
 
     response = api_client.patch(
         f'/api/appointments/{appointment.id}/',
-        {'status': Appointment.STATUS_COMPLETED},
+        {'is_completed': True},
         format='json',
     )
 
     appointment.refresh_from_db()
 
-    assert response.status_code == 400
-    assert appointment.status == Appointment.STATUS_CREATED
+    assert response.status_code == 403
+    assert appointment.is_completed is False
 
 
 def test_doctor_can_see_own_schedule(
@@ -137,14 +150,14 @@ def test_doctor_can_complete_appointment(
 
     response = api_client.patch(
         f'/api/appointments/{appointment.id}/',
-        {'status': Appointment.STATUS_COMPLETED},
+        {'is_completed': True},
         format='json',
     )
 
     appointment.refresh_from_db()
 
     assert response.status_code == 200
-    assert appointment.status == Appointment.STATUS_COMPLETED
+    assert appointment.is_completed is True
 
 
 def test_doctor_cannot_cancel_appointment(
@@ -154,16 +167,13 @@ def test_doctor_cannot_cancel_appointment(
 ):
     api_client.force_authenticate(user=doctor_user)
 
-    response = api_client.patch(
+    response = api_client.delete(
         f'/api/appointments/{appointment.id}/',
-        {'status': Appointment.STATUS_CANCELLED},
         format='json',
     )
 
-    appointment.refresh_from_db()
-
-    assert response.status_code == 400
-    assert appointment.status == Appointment.STATUS_CREATED
+    assert response.status_code == 403
+    assert Appointment.objects.filter(id=appointment.id).exists()
 
 
 def test_doctor_schedule_returns_400_for_invalid_date(

@@ -235,11 +235,11 @@ class AppointmentAdmin(admin.ModelAdmin):
         'patient',
         'doctor_branch_service',
         'date_time',
-        'status',
+        'is_completed',
         'created_at',
     )
     list_filter = (
-        'status',
+        'is_completed',
         'doctor_branch_service',
         'date_time',
     )

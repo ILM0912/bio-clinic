@@ -193,7 +193,7 @@ export const getDoctorSchedule = (date) => {
   }).then(checkResponse);
 };
 
-export const updateAppointmentStatus = ({ appointmentId, status }) => {
+export const updateAppointmentIsCompleted = (appointmentId) => {
   const token = localStorage.getItem("auth_token");
 
   return fetch(`${API_URL}/appointments/${appointmentId}/`, {
@@ -203,7 +203,18 @@ export const updateAppointmentStatus = ({ appointmentId, status }) => {
       Authorization: `Token ${token}`,
     },
     body: JSON.stringify({
-      status,
+      is_completed: true,
     }),
+  }).then(checkResponse);
+};
+
+export const cancelAppointment = (appointmentId) => {
+  const token = localStorage.getItem("auth_token");
+
+  return fetch(`${API_URL}/appointments/${appointmentId}/`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Token ${token}`,
+    },
   }).then(checkResponse);
 };

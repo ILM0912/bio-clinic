@@ -241,16 +241,6 @@ class DoctorBranchService(models.Model):
 
 
 class Appointment(models.Model):
-    STATUS_CREATED = 'created'
-    STATUS_CANCELLED = 'cancelled'
-    STATUS_COMPLETED = 'completed'
-
-    STATUS_CHOICES = [
-        (STATUS_CREATED, 'Создана'),
-        (STATUS_CANCELLED, 'Отменена'),
-        (STATUS_COMPLETED, 'Завершена'),
-    ]
-
     patient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -266,11 +256,9 @@ class Appointment(models.Model):
     date_time = models.DateTimeField(
         verbose_name='Дата и время записи',
     )
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default=STATUS_CREATED,
-        verbose_name='Статус',
+    is_completed = models.BooleanField(
+        default=False,
+        verbose_name='Завершена',
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
@@ -316,9 +304,7 @@ class Appointment(models.Model):
         if Appointment.objects.filter(
             doctor_branch_service__doctor=doctor,
             date_time=self.date_time,
-        ).exclude(pk=self.pk).exclude(
-            status=self.STATUS_CANCELLED,
-        ).exists():
+        ).exclude(pk=self.pk).exists():
             raise ValidationError('На выбранное время врач уже занят.')
 
     class Meta:

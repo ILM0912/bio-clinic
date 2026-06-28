@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 
 import {
   getDoctorSchedule,
-  updateAppointmentStatus,
+  updateAppointmentIsCompleted,
 } from "../../api/api";
-import { formatDateTime, getStatusBadgeClass } from "../../utils";
+import { formatDateTime } from "../../utils";
 
 
 const DoctorProfile = ({ user }) => {
@@ -42,10 +42,7 @@ const DoctorProfile = ({ user }) => {
     const scrollY = window.scrollY;
 
     try {
-      await updateAppointmentStatus({
-        appointmentId,
-        status: "completed",
-      });
+      await updateAppointmentIsCompleted(appointmentId);
 
       await reloadSchedule();
 
@@ -81,12 +78,12 @@ const DoctorProfile = ({ user }) => {
               </p>
             </div>
 
-            <span className={getStatusBadgeClass(appointment.status)}>
-              {appointment.status_display}
+            <span className={`badge ${appointment.is_completed ? "bg-success" : "bg-warning"}`}>
+              {appointment.is_completed ? "Завершена" : "Активна"}
             </span>
           </div>
 
-          {appointment.status !== "completed" && (
+          {!appointment.is_completed && (
             <button
               type="button"
               className="btn btn-outline-success btn-sm mt-3"

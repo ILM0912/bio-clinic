@@ -71,7 +71,7 @@ def test_update_appointment_status_fuzzing_does_not_return_500(
     api_client.force_authenticate(user=patient)
     response = api_client.patch(
         f'/api/appointments/{appointment.id}/',
-        {'status': status},
+        {'is_completed': status},
         format='json',
     )
     assert response.status_code < 500

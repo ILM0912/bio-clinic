@@ -155,5 +155,5 @@ def appointment(patient, doctor_branch_service, future_datetime):
         patient=patient,
         doctor_branch_service=doctor_branch_service,
         date_time=future_datetime,
-        status=Appointment.STATUS_CREATED,
+        is_completed=False,
     )

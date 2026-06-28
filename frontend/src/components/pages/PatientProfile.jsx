@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import {
   getAppointmentHistory,
   getUpcomingAppointments,
-  updateAppointmentStatus,
+  cancelAppointment,
 } from "../../api/api";
-import { formatDateTime, getStatusBadgeClass } from "../../utils";
+import { formatDateTime } from "../../utils";
 
 
 const PatientProfile = ({ user }) => {
@@ -51,10 +51,7 @@ const PatientProfile = ({ user }) => {
     const scrollY = window.scrollY;
 
     try {
-      await updateAppointmentStatus({
-        appointmentId,
-        status: "cancelled",
-      });
+      await cancelAppointment(appointmentId);
 
       await reloadAppointments();
 
@@ -89,9 +86,8 @@ const PatientProfile = ({ user }) => {
                 <strong>Врач:</strong> {appointment.doctor_full_name}
               </p>
             </div>
-
-            <span className={getStatusBadgeClass(appointment.status)}>
-              {appointment.status_display}
+            <span className={`badge ${appointment.is_completed ? "bg-success" : "bg-warning"}`}>
+              {appointment.is_completed ? "Завершена" : "Активна"}
             </span>
           </div>
 

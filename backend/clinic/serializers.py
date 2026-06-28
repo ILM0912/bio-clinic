@@ -127,21 +127,19 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
             'id',
             'doctor_branch_service',
             'date_time',
-            'status',
             'created_at',
         )
         read_only_fields = (
             'id',
-            'status',
             'created_at',
         )
 
     def validate(self, attrs):
-        request = self.context.get('request')
+        request = self.context['request']
         appointment = Appointment(
             patient=request.user,
-            doctor_branch_service=attrs.get('doctor_branch_service'),
-            date_time=attrs.get('date_time'),
+            doctor_branch_service=attrs['doctor_branch_service'],
+            date_time=attrs['date_time'],
         )
         try:
             appointment.clean()
@@ -150,7 +148,7 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        request = self.context.get('request')
+        request = self.context['request']
         try:
             return Appointment.objects.create(
                 patient=request.user,
@@ -173,10 +171,7 @@ class AppointmentReadSerializer(serializers.ModelSerializer):
         source='doctor_branch_service.branch_service.service.title',
         read_only=True,
     )
-    status_display = serializers.CharField(
-        source='get_status_display',
-        read_only=True,
-    )
+    is_completed = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Appointment
@@ -187,8 +182,7 @@ class AppointmentReadSerializer(serializers.ModelSerializer):
             'branch_name',
             'service_title',
             'date_time',
-            'status',
-            'status_display',
+            'is_completed',
         )
 
     def get_patient_full_name(self, obj):
@@ -198,45 +192,7 @@ class AppointmentReadSerializer(serializers.ModelSerializer):
         return obj.doctor_branch_service.doctor.user.get_full_name()
 
 
-class AppointmentStatusSerializer(serializers.ModelSerializer):
+class AppointmentCompleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
-        fields = ('status',)
-
-    def validate_status(self, value):
-        request = self.context['request']
-        user = request.user
-        if user.role == user.ROLE_PATIENT:
-            if value != Appointment.STATUS_CANCELLED:
-                raise serializers.ValidationError(
-                    'Пациент может только отменить запись.'
-                )
-        elif user.role == user.ROLE_DOCTOR:
-            if value != Appointment.STATUS_COMPLETED:
-                raise serializers.ValidationError(
-                    'Врач может только завершить запись.'
-                )
-        else:
-            raise serializers.ValidationError(
-                'Недопустимое изменение статуса.'
-            )
-        return value
-
-    def validate(self, attrs):
-        appointment = self.instance
-        user = self.context['request'].user
-        if user.role == user.ROLE_PATIENT:
-            if appointment.date_time < timezone.now():
-                raise serializers.ValidationError(
-                    'Нельзя отменить прошедшую запись.'
-                )
-            if appointment.status != Appointment.STATUS_CREATED:
-                raise serializers.ValidationError(
-                    'Можно отменить только активную запись.'
-                )
-        if user.role == user.ROLE_DOCTOR:
-            if appointment.status == Appointment.STATUS_CANCELLED:
-                raise serializers.ValidationError(
-                    'Нельзя завершить отменённую запись.'
-                )
-        return attrs
+        fields = ('is_completed',)
